@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+uploads/
+*.jpg
+*.png
+*.h5
+*.pkl
+*.joblib
+.DS_Store

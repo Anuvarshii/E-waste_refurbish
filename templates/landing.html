@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart E-Waste Refurbishment System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #040904;
+            --surface: #0b160b;
+            --surface2: #101e10;
+            --border: rgba(74, 222, 128, 0.30);
+            --border-dim: rgba(74, 222, 128, 0.18);
+            --accent: #4ade80;
+            --accent-dim: rgba(74, 222, 128, 0.12);
+            --text: #edfaed;
+            --sub: #9ab89a;
+            --muted: #5a7a5a;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -300px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(74,222,128,0.07) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(4,9,4,0.90);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-icon {
+            width: 30px; height: 30px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .nav-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.01em;
+        }
+
+        .nav-dot {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--sub);
+        }
+
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* LAYOUT */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* HERO */
+        .hero {
+            padding: 160px 0 80px;
+            text-align: center;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 36px;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 5vw, 4.6rem);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            margin-bottom: 22px;
+            animation: fadeUp 0.5s 0.07s ease both;
+        }
+
+        .hero h1 .green { color: var(--accent); }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--sub);
+            line-height: 1.75;
+            max-width: 560px;
+            margin: 0 auto 48px;
+            animation: fadeUp 0.5s 0.14s ease both;
+        }
+
+        .hero-btn {
+            animation: fadeUp 0.5s 0.2s ease both;
+        }
+
+        .btn-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--accent);
+            color: #040904;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            padding: 15px 34px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 32px rgba(74,222,128,0.28);
+        }
+
+        .btn-main:hover {
+            background: #6ee7a0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(74,222,128,0.42);
+        }
+
+        .btn-main .arr { transition: transform 0.2s; display: inline-block; }
+        .btn-main:hover .arr { transform: translateX(4px); }
+
+        /* STATS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin: 64px 0;
+            animation: fadeUp 0.5s 0.26s ease both;
+        }
+
+        .stat {
+            padding: 28px 24px;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .stat:last-child { border-right: none; }
+        .stat:hover { background: var(--surface2); }
+
+        .stat-num {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            line-height: 1.2;
+            margin-bottom: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .stat-lbl {
+            font-size: 0.73rem;
+            font-weight: 500;
+            color: var(--sub);
+            letter-spacing: 0.04em;
+        }
+
+        /* SECTION HEADER */
+        .sec-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .sec-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--sub);
+            white-space: nowrap;
+        }
+
+        .sec-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* STEPS */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 72px;
+        }
+
+        .step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 32px 28px;
+            transition: all 0.22s;
+            animation: fadeUp 0.5s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step:nth-child(1) { animation-delay: 0.34s; }
+        .step:nth-child(2) { animation-delay: 0.40s; }
+        .step:nth-child(3) { animation-delay: 0.46s; }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.22s;
+        }
+
+        .step:hover {
+            border-color: rgba(74,222,128,0.50);
+            background: var(--surface2);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+        }
+
+        .step:hover::before { opacity: 1; }
+
+        .step-num {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .step h3 {
+            font-size: 1.02rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .step p {
+            font-size: 0.875rem;
+            color: var(--sub);
+            line-height: 1.72;
+            font-weight: 400;
+        }
+
+        /* FEATURES 4-col */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 80px;
+        }
+
+        .feat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 30px 28px;
+            transition: all 0.22s;
+            animation: fadeUp 0.5s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feat:nth-child(1) { animation-delay: 0.34s; }
+        .feat:nth-child(2) { animation-delay: 0.40s; }
+        .feat:nth-child(3) { animation-delay: 0.46s; }
+        .feat:nth-child(4) { animation-delay: 0.52s; }
+
+        .feat::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.22s;
+        }
+
+        .feat:hover {
+            border-color: rgba(74,222,128,0.50);
+            background: var(--surface2);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+        }
+
+        .feat:hover::before { opacity: 1; }
+
+        .feat-icon {
+            width: 40px; height: 40px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .feat-icon svg { width: 18px; height: 18px; color: var(--accent); }
+
+        .feat h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .feat p {
+            font-size: 0.875rem;
+            color: var(--sub);
+            line-height: 1.72;
+            font-weight: 400;
+        }
+
+        /* BOTTOM CTA */
+        .bottom-cta {
+            text-align: center;
+            padding: 72px 0 96px;
+            border-top: 1px solid var(--border);
+        }
+
+        .bottom-cta h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .bottom-cta p {
+            color: var(--sub);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 480px;
+            margin: 0 auto 36px;
+        }
+
+        @media (max-width: 860px) {
+            .steps, .features { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .stat:nth-child(2) { border-right: none; }
+            .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+        }
+
+        @media (max-width: 560px) {
+            .wrap { padding: 0 20px; }
+            .nav-inner { padding: 0 20px; }
+            .hero { padding: 120px 0 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <div class="nav-left">
+            <div class="nav-icon">♻</div>
+            <span class="nav-title">Smart E-Waste Refurbishment System</span>
+        </div>
+    </div>
+</nav>
+
+<div class="wrap">
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-tag">
+            ♻ AI-Driven E-Waste Evaluation
+        </div>
+        <h1>Smart <span class="green">E-Waste</span><br>Refurbishment System</h1>
+        <div class="hero-btn">
+            <a href="/predictor" class="btn-main">Start Device Analysis <span class="arr">→</span></a>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat">
+            <span class="stat-num">Image Analysis</span>
+            <span class="stat-lbl">AI Damage Detection</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">Instant Decision</span>
+            <span class="stat-lbl">Refurbish / Recycle</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">Automated</span>
+            <span class="stat-lbl">Reduced Manual Inspection</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">Blockchain Ready</span>
+            <span class="stat-lbl">Device Traceability</span>
+        </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="sec-head">
+        <span class="sec-label">How It Works</span>
+        <div class="sec-line"></div>
+    </div>
+
+    <div class="steps">
+        <div class="step">
+            <span class="step-num">Step 01</span>
+            <h3>Upload Device Details</h3>
+            <p>Provide basic information about the device such as brand, model, battery performance, and component condition. Upload an image of the device for visual inspection.</p>
+        </div>
+        <div class="step">
+            <span class="step-num">Step 02</span>
+            <h3>AI Condition Analysis</h3>
+            <p>The system evaluates device condition using a combination of image-based damage detection and machine learning models to estimate refurbishment potential.</p>
+        </div>
+        <div class="step">
+            <span class="step-num">Step 03</span>
+            <h3>Smart Decision Output</h3>
+            <p>Based on the device condition, the system automatically recommends whether the device should be refurbished or recycled, helping reduce unnecessary electronic waste.</p>
+        </div>
+    </div>
+
+    <!-- ADVANCED FEATURES -->
+    <div class="sec-head">
+        <span class="sec-label">Advanced Features</span>
+        <div class="sec-line"></div>
+    </div>
+
+    <div class="features">
+        <div class="feat">
+            <div class="feat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+            </div>
+            <h3>AI Damage Detection</h3>
+            <p>A convolutional neural network analyzes device images to detect visible damage and estimate physical condition.</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h3>Machine Learning Decision Engine</h3>
+            <p>A trained Random Forest model evaluates refurbishment potential using physical score and damage assessment.</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <h3>Sustainable E-Waste Management</h3>
+            <p>Helps reduce electronic waste by identifying devices that can still be refurbished and reused.</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/>
+                </svg>
+            </div>
+            <h3>Traceable Device Records</h3>
+            <p>Each evaluated device can be recorded with its condition and decision, enabling transparent lifecycle tracking.</p>
+        </div>
+    </div>
+
+    <!-- BOTTOM CTA -->
+    <div class="bottom-cta">
+        <h2>Make smarter decisions for electronic waste ♻</h2>
+        <p>Use AI to identify devices that can be refurbished and prevent unnecessary recycling.</p>
+        <a href="/predictor" class="btn-main">Analyze a Device <span class="arr">→</span></a>
+    </div>
+
+</div>
+</body>
+</html>

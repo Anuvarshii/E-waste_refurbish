@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result — E-Waste System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #040904;
+            --surface: #0b160b;
+            --surface2: #101e10;
+            --border: rgba(74, 222, 128, 0.30);
+            --accent: #4ade80;
+            --accent-dim: rgba(74, 222, 128, 0.12);
+            --text: #edfaed;
+            --sub: #9ab89a;
+            --muted: #5a7a5a;
+            --red: #f87171;
+            --amber: #fbbf24;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -150px; left: -100px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(74,222,128,0.06) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(4,9,4,0.90);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-icon {
+            width: 30px; height: 30px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .nav-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 104px 40px 80px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-eyebrow {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--sub);
+            display: block;
+            margin-bottom: 8px;
+            animation: fadeUp 0.45s ease both;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 32px;
+            color: var(--text);
+            animation: fadeUp 0.45s 0.05s ease both;
+        }
+
+        /* VERDICT */
+        .verdict {
+            border-radius: 14px;
+            padding: 32px 36px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            animation: fadeUp 0.45s 0.1s ease both;
+        }
+
+        .vl { display: flex; align-items: center; gap: 18px; }
+
+        .v-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .v-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .v-desc {
+            font-size: 0.85rem;
+            color: var(--sub);
+            margin-top: 8px;
+        }
+
+        .conf-box {
+            flex-shrink: 0;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            padding: 16px 22px;
+            text-align: center;
+        }
+
+        .conf-num {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--text);
+            display: block;
+            line-height: 1;
+        }
+
+        .conf-lbl {
+            font-size: 0.64rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 5px;
+            display: block;
+        }
+
+        .v-refurbish {
+            background: rgba(74,222,128,0.08);
+            border: 1px solid rgba(74,222,128,0.32);
+        }
+        .v-refurbish .v-tag { color: var(--accent); }
+        .v-refurbish .v-name { color: var(--accent); }
+
+        .v-recycle {
+            background: rgba(248,113,113,0.08);
+            border: 1px solid rgba(248,113,113,0.32);
+        }
+        .v-recycle .v-tag { color: var(--red); }
+        .v-recycle .v-name { color: var(--red); }
+
+        .v-manual {
+            background: rgba(251,191,36,0.08);
+            border: 1px solid rgba(251,191,36,0.32);
+        }
+        .v-manual .v-tag { color: var(--amber); }
+        .v-manual .v-name { color: var(--amber); }
+
+        /* METRICS */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+            animation: fadeUp 0.45s 0.15s ease both;
+        }
+
+        .mc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .mc:hover {
+            border-color: rgba(74,222,128,0.50);
+            background: var(--surface2);
+        }
+
+        .mc-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 7px;
+        }
+
+        .mc-val {
+            font-size: 1.9rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .mc-denom {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .bar-wrap { width: 64px; }
+
+        .bar-track {
+            width: 64px;
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 100px;
+        }
+
+        .fg { background: var(--accent); }
+        .fb { background: #60a5fa; }
+        .fa { background: var(--amber); }
+        .fp { background: #c084fc; }
+
+        .bar-scale {
+            font-size: 0.62rem;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        /* RISK */
+        .risk-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            animation: fadeUp 0.45s 0.2s ease both;
+        }
+
+        .r-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 5px;
+        }
+
+        .r-val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .rbadge {
+            padding: 7px 18px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .b-low  { background: rgba(74,222,128,0.12);  color: var(--accent); border: 1px solid rgba(74,222,128,0.35); }
+        .b-med  { background: rgba(251,191,36,0.12);  color: var(--amber);  border: 1px solid rgba(251,191,36,0.35); }
+        .b-high { background: rgba(248,113,113,0.12); color: var(--red);    border: 1px solid rgba(248,113,113,0.35); }
+
+        /* ACTIONS */
+        .actions {
+            display: flex;
+            gap: 10px;
+            animation: fadeUp 0.45s 0.25s ease both;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--accent);
+            color: #040904;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.875rem;
+            padding: 12px 24px;
+            border-radius: 9px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 24px rgba(74,222,128,0.24);
+        }
+
+        .btn-primary:hover {
+            background: #6ee7a0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(74,222,128,0.36);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            color: var(--sub);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 12px 24px;
+            border-radius: 9px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover { color: var(--text); border-color: rgba(74,222,128,0.50); }
+
+        @media (max-width: 580px) {
+            .page { padding: 90px 20px 60px; }
+            .nav-inner { padding: 0 20px; }
+            .verdict { flex-direction: column; align-items: flex-start; padding: 24px 22px; }
+            .metrics { grid-template-columns: 1fr; }
+            .actions { flex-direction: column; }
+            .btn-primary, .btn-secondary { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <div class="nav-icon">♻</div>
+        <span class="nav-title">Smart E-Waste Refurbishment System</span>
+    </div>
+</nav>
+
+<div class="page">
+    <span class="page-eyebrow">Analysis Complete · Device Report</span>
+    <h1 class="page-title">Device Analysis Result</h1>
+
+    {% if recommendation == 'REFURBISH' %}
+    <div class="verdict v-refurbish">
+        <div class="vl">
+            <div>
+                <div class="v-tag">Recommendation</div>
+                <div class="v-name">REFURBISH</div>
+                <div class="v-desc">Device condition supports refurbishment. Proceed to repair workflow.</div>
+            </div>
+        </div>
+        <div class="conf-box">
+            <span class="conf-num">{{ confidence }}%</span>
+            <span class="conf-lbl">Confidence</span>
+        </div>
+    </div>
+    {% elif recommendation == 'RECYCLE' %}
+    <div class="verdict v-recycle">
+        <div class="vl">
+            <div>
+                <div class="v-tag">Recommendation</div>
+                <div class="v-name">RECYCLE</div>
+                <div class="v-desc">Beyond cost-effective repair. Route to certified recycling program.</div>
+            </div>
+        </div>
+        <div class="conf-box">
+            <span class="conf-num">{{ confidence }}%</span>
+            <span class="conf-lbl">Confidence</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="verdict v-manual">
+        <div class="vl">
+            <div>
+                <div class="v-tag">Recommendation</div>
+                <div class="v-name">MANUAL REVIEW</div>
+                <div class="v-desc">Borderline case — requires human technician assessment.</div>
+            </div>
+        </div>
+        <div class="conf-box">
+            <span class="conf-num">{{ confidence }}%</span>
+            <span class="conf-lbl">Confidence</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="metrics">
+
+        <div class="mc">
+            <div>
+                <div class="mc-name">Physical Score</div>
+                <div class="mc-val" style="color:var(--accent)">
+                    {{ physical_score }}<span class="mc-denom">/10</span>
+                </div>
+            </div>
+            <div class="bar-wrap">
+                <div class="bar-track">
+                    <div class="bar-fill fg" style="width:{{ (physical_score | float * 10) | int }}%"></div>
+                </div>
+                <div class="bar-scale">out of 10</div>
+            </div>
+        </div>
+
+        <div class="mc">
+            <div>
+                <div class="mc-name">Damage Score</div>
+                <div class="mc-val" style="color:#60a5fa">
+                    {{ damage_score }}<span class="mc-denom">/10</span>
+                </div>
+            </div>
+            <div class="bar-wrap">
+                <div class="bar-track">
+                    <div class="bar-fill fb" style="width:{{ (damage_score | float * 10) | int }}%"></div>
+                </div>
+                <div class="bar-scale">out of 10</div>
+            </div>
+        </div>
+
+        <div class="mc">
+            <div>
+                <div class="mc-name">Refurbish Value</div>
+                <div class="mc-val" style="color:var(--amber)">
+                    {{ refurbish_value }}<span class="mc-denom">/10</span>
+                </div>
+            </div>
+            <div class="bar-wrap">
+                <div class="bar-track">
+                    <div class="bar-fill fa" style="width:{{ (refurbish_value | float * 10) | int }}%"></div>
+                </div>
+                <div class="bar-scale">out of 10</div>
+            </div>
+        </div>
+
+        <div class="mc">
+            <div>
+                <div class="mc-name">Risk Level</div>
+                <div class="mc-val" style="color:var(--text)">{{ risk }}</div>
+            </div>
+            {% if risk == 'Low' or risk == 'LOW' %}
+                <span class="rbadge b-low">● Low</span>
+            {% elif risk == 'Medium' or risk == 'MEDIUM' %}
+                <span class="rbadge b-med">● Medium</span>
+            {% else %}
+                <span class="rbadge b-high">● High</span>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div class="actions">
+        <a href="/predictor" class="btn-primary">+ Analyze Another Device</a>
+        <a href="/" class="btn-secondary">← Back to Home</a>
+    </div>
+
+</div>
+</body>
+</html>

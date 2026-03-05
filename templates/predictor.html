@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Analysis — E-Waste System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #050a05;
+            --surface: #0c180c;
+            --surface2: #112011;
+            --input-bg: #0a150a;
+            --border: rgba(74, 222, 128, 0.40);
+            --border-input: rgba(74, 222, 128, 0.38);
+            --border-focus: rgba(74, 222, 128, 0.80);
+            --accent: #4ade80;
+            --accent-dim: rgba(74, 222, 128, 0.12);
+            --text: #f4fbf4;
+            --sub: #b0ccb0;
+            --muted: #7aaa7a;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -200px; right: -100px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(74,222,128,0.04) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(5,10,5,0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-icon {
+            width: 30px; height: 30px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .nav-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--sub);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            padding: 7px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .back-btn:hover { color: var(--text); border-color: rgba(74,222,128,0.5); }
+
+        /* PAGE */
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 104px 40px 80px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-eyebrow {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(74,222,128,0.10);
+            border: 1px solid rgba(74,222,128,0.28);
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            animation: fadeUp 0.45s ease both;
+        }
+
+        .page-title {
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            margin-bottom: 12px;
+            animation: fadeUp 0.45s 0.05s ease both;
+        }
+
+        .page-sub {
+            color: var(--sub);
+            font-size: 0.95rem;
+            font-weight: 400;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            animation: fadeUp 0.45s 0.1s ease both;
+        }
+
+        /* FORM CARD */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeUp 0.45s 0.13s ease both;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+        }
+
+        .form-section {
+            padding: 30px 36px;
+            border-bottom: 1px solid rgba(74,222,128,0.15);
+        }
+
+        .form-section:last-of-type { border-bottom: none; }
+
+        .sec-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sec-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(74,222,128,0.25);
+        }
+
+        /* FIELD */
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field-label {
+            font-size: 0.84rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--text);
+        }
+
+        input, select {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-input);
+            border-radius: 9px;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 13px 14px;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input::placeholder { color: rgba(255,255,255,0.35); font-weight: 400; }
+        select { color: rgba(255,255,255,0.45); }
+
+        input:focus, select:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(74,222,128,0.10);
+            color: #ffffff;
+        }
+
+        select option { background: #0c180c; color: #ffffff; }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--sub);
+            letter-spacing: 0.02em;
+        }
+
+        .condition-guide {
+            margin-top: 20px;
+            background: rgba(74,222,128,0.06);
+            border: 1px solid rgba(74,222,128,0.28);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            gap: 0;
+        }
+
+        .guide-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-right: 20px;
+            white-space: nowrap;
+        }
+
+        .guide-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 0 12px;
+            border-left: 1px solid rgba(74,222,128,0.18);
+        }
+
+        .guide-range {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+        }
+
+        .guide-sep { display: none; }
+
+        .guide-desc {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--sub);
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        /* COMPONENT CHECK */
+        .component-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .comp-row {
+            background: var(--input-bg);
+            border: 1px solid var(--border-input);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: border-color 0.18s, background 0.18s;
+        }
+
+        .comp-row:hover {
+            border-color: rgba(74,222,128,0.60);
+            background: rgba(74,222,128,0.04);
+        }
+
+        .comp-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.01em;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(74,222,128,0.30);
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .toggle-pill input[type="radio"] {
+            display: none;
+        }
+
+        .toggle-pill span {
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 6px 16px;
+            color: var(--sub);
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .toggle-pill:not(:last-child) span {
+            border-right: 1px solid rgba(74,222,128,0.20);
+        }
+
+        .toggle-pill input[type="radio"]:checked + span {
+            background: rgba(74,222,128,0.20);
+            color: var(--accent);
+        }
+
+        .toggle-pill span:hover {
+            color: var(--text);
+            background: rgba(74,222,128,0.09);
+        }
+
+        /* UPLOAD */
+        .upload-zone {
+            position: relative;
+            border: 1px dashed rgba(74,222,128,0.35);
+            border-radius: 10px;
+            padding: 36px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--input-bg);
+        }
+
+        .upload-zone:hover {
+            border-color: rgba(74,222,128,0.6);
+            background: rgba(74,222,128,0.04);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            padding: 0;
+            border: none;
+            background: none;
+            box-shadow: none;
+        }
+
+        .upload-zone input[type="file"]:focus { box-shadow: none; }
+
+        .up-icon-svg {
+            width: 36px; height: 36px;
+            margin: 0 auto 12px;
+            opacity: 0.4;
+        }
+
+        .up-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .up-hint {
+            font-size: 0.73rem;
+            color: var(--muted);
+            letter-spacing: 0.03em;
+        }
+
+        #fname {
+            display: none;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* FOOTER */
+        .form-footer {
+            padding: 22px 36px;
+            background: rgba(0,0,0,0.22);
+            border-top: 1px solid rgba(74,222,128,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .footer-note {
+            font-size: 0.72rem;
+            color: var(--muted);
+            line-height: 1.55;
+            max-width: 320px;
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #050a05;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 0.02em;
+            padding: 13px 30px;
+            border-radius: 9px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 24px rgba(74,222,128,0.2);
+            white-space: nowrap;
+        }
+
+        .btn-submit:hover {
+            background: #6ee7a0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(74,222,128,0.34);
+        }
+
+        .btn-submit .arr { transition: transform 0.2s; display: inline-block; }
+        .btn-submit:hover .arr { transform: translateX(3px); }
+
+        @media (max-width: 600px) {
+            .field-grid, .field-grid-3, .component-grid { grid-template-columns: 1fr; }
+            .form-section { padding: 24px 20px; }
+            .form-footer { flex-direction: column; align-items: stretch; }
+            .btn-submit { justify-content: center; }
+            .page { padding: 88px 20px 60px; }
+            .nav-inner { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <div class="nav-left">
+            <div class="nav-icon">♻</div>
+            <span class="nav-title">Smart E-Waste Refurbishment System</span>
+        </div>
+        <a href="/" class="back-btn">← Back</a>
+    </div>
+</nav>
+
+<div class="page">
+    <span class="page-eyebrow">Device Intake</span>
+    <h1 class="page-title">Device Condition<br>Analysis</h1>
+    <p class="page-sub">Enter hardware specs and upload a device image for AI evaluation</p>
+
+    <div class="form-card">
+        <form action="/predict" method="POST" enctype="multipart/form-data" id="mainForm">
+
+            <!-- DEVICE INFORMATION -->
+            <div class="form-section">
+                <div class="sec-title">Device Information</div>
+                <div class="field-grid-3">
+
+                    <div class="field">
+                        <span class="field-label">Brand</span>
+                        <select name="brand" id="brandSelect" required>
+                            <option value="" disabled selected>Select brand</option>
+                            <option value="apple">Apple</option>
+                            <option value="samsung">Samsung</option>
+                            <option value="oneplus">OnePlus</option>
+                            <option value="vivo">Vivo</option>
+                            <option value="oppo">Oppo</option>
+                            <option value="realme">Realme</option>
+                            <option value="redmi">Redmi</option>
+                            <option value="poco">Poco</option>
+                            <option value="motorola">Motorola</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <span class="field-label">Model</span>
+                        <input type="text" name="model" placeholder="e.g. Galaxy S21" required>
+                    </div>
+
+                    <div class="field">
+                        <span class="field-label">Manufacture Year</span>
+                        <input type="number" name="year" min="2010" max="2026" placeholder="e.g. 2021" required>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- HARDWARE CONDITION -->
+            <div class="form-section">
+                <div class="sec-title">Hardware Condition</div>
+                <div class="field-grid">
+
+                    <div class="field">
+                        <span class="field-label">Battery Performance</span>
+                        <select name="battery_status" id="batterySelect" required>
+                            <option value="" disabled selected>Select condition</option>
+                            <option value="excellent">Lasts full day</option>
+                            <option value="good">Lasts half day</option>
+                            <option value="average">Drains quickly</option>
+                            <option value="poor">Battery almost dead</option>
+                        </select>
+                        <span class="field-hint">Based on daily battery usage</span>
+                    </div>
+
+                    <div class="field">
+                        <span class="field-label">Overall Condition (1 – 10)</span>
+                        <input type="number" name="working" min="1" max="10" step="1" placeholder="e.g. 7" required>
+                    </div>
+
+                </div>
+
+                <div class="condition-guide">
+                    <span class="guide-title">Guide</span>
+                    <div class="guide-row">
+                        <span class="guide-range">1–2</span>
+                        <span class="guide-desc">Completely damaged</span>
+                    </div>
+                    <div class="guide-row">
+                        <span class="guide-range">3–4</span>
+                        <span class="guide-desc">Major issues</span>
+                    </div>
+                    <div class="guide-row">
+                        <span class="guide-range">5–6</span>
+                        <span class="guide-desc">Noticeable problems</span>
+                    </div>
+                    <div class="guide-row">
+                        <span class="guide-range">7–8</span>
+                        <span class="guide-desc">Minor wear</span>
+                    </div>
+                    <div class="guide-row">
+                        <span class="guide-range">9–10</span>
+                        <span class="guide-desc">Excellent</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPONENT CHECK -->
+            <div class="form-section">
+                <div class="sec-title">Component Check</div>
+                <div class="component-grid">
+
+                    <div class="comp-row">
+                        <span class="comp-name">Screen</span>
+                        <div class="toggle-group">
+                            <label class="toggle-pill">
+                                <input type="radio" name="screen" value="yes" required>
+                                <span>Working</span>
+                            </label>
+                            <label class="toggle-pill">
+                                <input type="radio" name="screen" value="no">
+                                <span>Faulty</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="comp-row">
+                        <span class="comp-name">Touch</span>
+                        <div class="toggle-group">
+                            <label class="toggle-pill">
+                                <input type="radio" name="touch" value="yes" required>
+                                <span>Working</span>
+                            </label>
+                            <label class="toggle-pill">
+                                <input type="radio" name="touch" value="no">
+                                <span>Faulty</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="comp-row">
+                        <span class="comp-name">Speaker</span>
+                        <div class="toggle-group">
+                            <label class="toggle-pill">
+                                <input type="radio" name="speaker" value="yes" required>
+                                <span>Working</span>
+                            </label>
+                            <label class="toggle-pill">
+                                <input type="radio" name="speaker" value="no">
+                                <span>Faulty</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="comp-row">
+                        <span class="comp-name">Camera</span>
+                        <div class="toggle-group">
+                            <label class="toggle-pill">
+                                <input type="radio" name="camera" value="yes" required>
+                                <span>Working</span>
+                            </label>
+                            <label class="toggle-pill">
+                                <input type="radio" name="camera" value="no">
+                                <span>Faulty</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- DEVICE IMAGE -->
+            <div class="form-section">
+                <div class="sec-title">Device Image</div>
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" name="image" accept="image/*" id="fileInput" required>
+                    <svg class="up-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <div class="up-text">Click to upload or drag &amp; drop</div>
+                    <div class="up-hint">JPG, PNG, WEBP &nbsp;·&nbsp; Max 10 MB</div>
+                    <div id="fname"></div>
+                </div>
+            </div>
+
+        </form>
+
+        <div class="form-footer">
+            <p class="footer-note">Device images are processed locally by the AI model. No data is stored or shared externally.</p>
+            <button type="submit" form="mainForm" class="btn-submit">
+                Run Analysis <span class="arr">→</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Upload feedback
+    const fi = document.getElementById('fileInput');
+    const fn = document.getElementById('fname');
+    const uz = document.getElementById('uploadZone');
+    fi.addEventListener('change', () => {
+        if (fi.files.length) {
+            fn.textContent = 'Selected: ' + fi.files[0].name;
+            fn.style.display = 'block';
+            uz.style.borderColor = 'rgba(74,222,128,0.65)';
+        }
+    });
+
+    // Turn selects to full white on selection
+    document.querySelectorAll('select').forEach(sel => {
+        sel.addEventListener('change', () => {
+            sel.style.color = '#ffffff';
+        });
+    });
+</script>
+
+</body>
+</html>
