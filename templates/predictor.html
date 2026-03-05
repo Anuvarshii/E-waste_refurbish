@@ -413,13 +413,59 @@
             letter-spacing: 0.03em;
         }
 
-        #fname {
+        .upload-success {
             display: none;
-            margin-top: 10px;
-            font-size: 0.75rem;
-            color: var(--accent);
-            font-weight: 600;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
+
+        .upload-success-icon {
+            width: 48px; height: 48px;
+            background: rgba(74,222,128,0.15);
+            border: 1px solid rgba(74,222,128,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .upload-success-icon svg {
+            width: 22px; height: 22px;
+            color: var(--accent);
+        }
+
+        .upload-success-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .upload-success-name {
+            font-size: 0.78rem;
+            color: var(--sub);
+            font-weight: 500;
+            max-width: 320px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .upload-change-btn {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.02em;
+            margin-top: 2px;
+        }
+
+        .upload-change-btn:hover { color: var(--sub); }
 
         /* FOOTER */
         .form-footer {
@@ -649,14 +695,27 @@
                 <div class="sec-title">Device Image</div>
                 <div class="upload-zone" id="uploadZone">
                     <input type="file" name="image" accept="image/*" id="fileInput" required>
-                    <svg class="up-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    <div class="up-text">Click to upload or drag &amp; drop</div>
-                    <div class="up-hint">JPG, PNG, WEBP &nbsp;·&nbsp; Max 10 MB</div>
-                    <div id="fname"></div>
+
+                    <div id="uploadPrompt">
+                        <svg class="up-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <div class="up-text">Click to upload or drag &amp; drop</div>
+                        <div class="up-hint">JPG, PNG, WEBP &nbsp;·&nbsp; Max 10 MB</div>
+                    </div>
+
+                    <div class="upload-success" id="uploadSuccess">
+                        <div class="upload-success-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <div class="upload-success-title">Image Uploaded Successfully</div>
+                        <div class="upload-success-name" id="uploadFileName"></div>
+                        <button type="button" class="upload-change-btn" id="changeFileBtn">Change file</button>
+                    </div>
                 </div>
             </div>
 
@@ -672,23 +731,38 @@
 </div>
 
 <script>
-    // Upload feedback
-    const fi = document.getElementById('fileInput');
-    const fn = document.getElementById('fname');
     const uz = document.getElementById('uploadZone');
+    const fi = document.getElementById('fileInput');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const uploadSuccess = document.getElementById('uploadSuccess');
+    const uploadFileName = document.getElementById('uploadFileName');
+    const changeFileBtn = document.getElementById('changeFileBtn');
+
     fi.addEventListener('change', () => {
-        if (fi.files.length) {
-            fn.textContent = 'Selected: ' + fi.files[0].name;
-            fn.style.display = 'block';
-            uz.style.borderColor = 'rgba(74,222,128,0.65)';
-        }
+        if (!fi.files.length) return;
+        const name = fi.files[0].name;
+        const size = (fi.files[0].size / 1024).toFixed(0);
+        uploadFileName.textContent = name + '  ·  ' + size + ' KB';
+        uploadPrompt.style.display = 'none';
+        uploadSuccess.style.display = 'flex';
+        uz.style.borderColor = 'rgba(74,222,128,0.65)';
+        uz.style.background = 'rgba(74,222,128,0.06)';
+        fi.style.pointerEvents = 'none';
+    });
+
+    changeFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fi.style.pointerEvents = 'auto';
+        fi.value = '';
+        uploadSuccess.style.display = 'none';
+        uploadPrompt.style.display = 'block';
+        uz.style.borderColor = '';
+        uz.style.background = '';
     });
 
     // Turn selects to full white on selection
     document.querySelectorAll('select').forEach(sel => {
-        sel.addEventListener('change', () => {
-            sel.style.color = '#ffffff';
-        });
+        sel.addEventListener('change', () => { sel.style.color = '#ffffff'; });
     });
 </script>
 
